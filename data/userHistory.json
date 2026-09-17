@@ -1,0 +1,150 @@
+{
+  "aarav": [
+    {
+      "id": 101,
+      "date": "Sep 13, 2026",
+      "subject": "Open Trivia (JAVASCRIPT)",
+      "difficulty": "MEDIUM",
+      "score": 39,
+      "total": 40,
+      "percentage": 98
+    },
+    {
+      "id": 102,
+      "date": "Sep 12, 2026",
+      "subject": "Open Trivia (COMPUTERS)",
+      "difficulty": "HARD",
+      "score": 37,
+      "total": 40,
+      "percentage": 93
+    }
+  ],
+  "diya": [
+    {
+      "id": 103,
+      "date": "Sep 13, 2026",
+      "subject": "Open Trivia (REACT)",
+      "difficulty": "MEDIUM",
+      "score": 38,
+      "total": 40,
+      "percentage": 95
+    },
+    {
+      "id": 104,
+      "date": "Sep 11, 2026",
+      "subject": "Open Trivia (HTML)",
+      "difficulty": "EASY",
+      "score": 10,
+      "total": 10,
+      "percentage": 100
+    }
+  ],
+  "rohan": [
+    {
+      "id": 105,
+      "date": "Sep 13, 2026",
+      "subject": "Open Trivia (LOGIC REASONING)",
+      "difficulty": "HARD",
+      "score": 37,
+      "total": 40,
+      "percentage": 93
+    }
+  ],
+  "ananya": [
+    {
+      "id": 106,
+      "date": "Sep 12, 2026",
+      "subject": "Open Trivia (CSS)",
+      "difficulty": "MEDIUM",
+      "score": 36,
+      "total": 40,
+      "percentage": 90
+    }
+  ],
+  "vikram": [
+    {
+      "id": 107,
+      "date": "Sep 12, 2026",
+      "subject": "Open Trivia (OOPS)",
+      "difficulty": "MEDIUM",
+      "score": 35,
+      "total": 40,
+      "percentage": 88
+    }
+  ],
+  "neha": [
+    {
+      "id": 108,
+      "date": "Sep 11, 2026",
+      "subject": "Open Trivia (JAVASCRIPT)",
+      "difficulty": "EASY",
+      "score": 34,
+      "total": 40,
+      "percentage": 85
+    }
+  ],
+  "karan": [
+    {
+      "id": 109,
+      "date": "Sep 10, 2026",
+      "subject": "Open Trivia (LOGIC REASONING)",
+      "difficulty": "MEDIUM",
+      "score": 33,
+      "total": 40,
+      "percentage": 83
+    }
+  ],
+  "sneha": [
+    {
+      "id": 110,
+      "date": "Sep 10, 2026",
+      "subject": "Open Trivia (REACT)",
+      "difficulty": "MEDIUM",
+      "score": 32,
+      "total": 40,
+      "percentage": 80
+    }
+  ],
+  "priya": [
+    {
+      "id": 1789326245175,
+      "date": "Sep 14, 2026",
+      "subject": "Open Trivia (REACT)",
+      "difficulty": "HARD",
+      "score": 40,
+      "total": 40,
+      "percentage": 100
+    },
+    {
+      "id": 111,
+      "date": "Sep 09, 2026",
+      "subject": "Open Trivia (HTML)",
+      "difficulty": "EASY",
+      "score": 31,
+      "total": 40,
+      "percentage": 78
+    }
+  ],
+  "rahul": [
+    {
+      "id": 112,
+      "date": "Sep 09, 2026",
+      "subject": "Open Trivia (COMPUTERS)",
+      "difficulty": "MEDIUM",
+      "score": 30,
+      "total": 40,
+      "percentage": 75
+    }
+  ],
+  "gourav_sharma": [
+    {
+      "id": 1789326660393,
+      "date": "Sep 14, 2026",
+      "subject": "Open Trivia (GADGETS)",
+      "difficulty": "EASY",
+      "score": 5,
+      "total": 6,
+      "percentage": 83
+    }
+  ]
+}

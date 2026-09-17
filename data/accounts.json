@@ -1,0 +1,6 @@
+[
+  { "id": "aarav", "name": "Aarav Patel", "email": "aarav@campus.edu", "password": "123" },
+  { "id": "diya", "name": "Diya Sengupta", "email": "diya@campus.edu", "password": "123" },
+  { "id": "rohan", "name": "Rohan Verma", "email": "rohan@campus.edu", "password": "123" },
+  { "id": "ananya", "name": "Ananya Iyer", "email": "ananya@campus.edu", "password": "123" }
+]
