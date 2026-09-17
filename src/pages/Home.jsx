@@ -1,10 +1,18 @@
 import React, { useState, useEffect } from 'react';
+// Core React imports: useState for reactive data, useEffect for side-effects
+
 import { Link } from 'react-router-dom';
+// Link: Client-side routing without browser refresh
+
 import { FaTrophy, FaGlobe, FaPalette, FaReact, FaCubes, FaCalculator, FaStar, FaBookOpen } from 'react-icons/fa';
 import { IoFlash } from 'react-icons/io5';
+// Visual icons for subject tracks and statistics
 
 export default function Home() {
+  // Reads logged-in student user profile from localStorage
   const [user] = useState(() => JSON.parse(localStorage.getItem('quizmaster_user') || 'null'));
+
+  // Determines if the user has visited before or taken any tests, to customize welcome greeting
   const [isReturning] = useState(() => {
     const visited = localStorage.getItem('quizmaster_visited');
     const history = JSON.parse(localStorage.getItem('quizmaster_history') || '[]');
@@ -12,10 +20,12 @@ export default function Home() {
     return Boolean(visited || history.length > 0 || (storedUser && storedUser.name));
   });
 
+  // Marks the user as visited in localStorage
   useEffect(() => {
     localStorage.setItem('quizmaster_visited', 'true');
   }, []);
 
+  // Practice tracks array: defines each subject with icon, title, description, and tags
   const tracks = [
     { id: 'html', icon: <FaGlobe style={{ color: '#38bdf8' }} />, badge: 'Web Basics', title: 'HTML5 & Semantic Web', desc: 'Semantic structuring, form validation, accessible ARIA tags, and web standards.', tags: ['Semantics', 'Forms', 'ARIA'] },
     { id: 'css', icon: <FaPalette style={{ color: '#8b5cf6' }} />, badge: 'Layouts', title: 'CSS3 & Responsive Layouts', desc: 'Flexbox, CSS Grid layouts, box model, media queries, and styling cascade.', tags: ['Flexbox', 'Grid', 'Responsive'] },
@@ -27,9 +37,10 @@ export default function Home() {
 
   return (
     <main className="container">
-      {/* Hero Section */}
+      {/* Hero Banner Section */}
       <section className="hero-wrapper">
         <div className="hero-content">
+          {/* Personalized greeting badge shown if returning user */}
           {isReturning && (
             <div className="badge" style={{ marginBottom: '1rem', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
               <FaStar style={{ color: '#f59e0b' }} /> Welcome back, {user?.name || 'Learner'}! Progress remembered.
@@ -40,6 +51,7 @@ export default function Home() {
           <p className="hero-desc">
             Practice essential technical concepts and quantitative reasoning for campus placements and software engineering tests with timed practice drills.
           </p>
+          {/* Call-to-action buttons */}
           <div className="hero-actions">
             <Link to="/quiz" className="btn btn-primary btn-lg" id="heroStartBtn">
               {isReturning ? 'Continue Quiz →' : 'Start Quiz Now →'}
@@ -50,6 +62,7 @@ export default function Home() {
           </div>
         </div>
 
+        {/* Hero Visual: Mock assessment preview card */}
         <div className="hero-visual">
           <div className="showcase-card">
             <div className="showcase-window-header">
@@ -70,7 +83,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stats Bar */}
+      {/* Highlights & Statistics Strip */}
       <section className="stats-strip">
         <div><span className="stat-num">60+</span><span className="stat-label">Practice Questions</span></div>
         <div><span className="stat-num">06</span><span className="stat-label">Subject Tracks</span></div>
@@ -78,7 +91,7 @@ export default function Home() {
         <div><span className="stat-num" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}><FaTrophy style={{ color: '#f59e0b' }} /></span><span className="stat-label">Campus Leaderboard</span></div>
       </section>
 
-      {/* Practice Tracks */}
+      {/* Available Subject Tracks Cards */}
       <section>
         <div className="section-header">
           <div className="badge" style={{ marginBottom: '0.5rem' }}>Practice Subjects</div>
@@ -95,9 +108,11 @@ export default function Home() {
               </div>
               <h3>{t.title}</h3>
               <p>{t.desc}</p>
+              {/* Keyword tags */}
               <div className="card-tags">
                 {t.tags.map(tag => <span key={tag}>{tag}</span>)}
               </div>
+              {/* Direct link to start quiz in this subject */}
               <Link to={`/quiz?subject=${t.id}`} className="btn btn-outline" style={{ width: '100%' }}>
                 Practice {t.badge} →
               </Link>

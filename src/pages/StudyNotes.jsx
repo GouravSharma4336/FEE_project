@@ -1,8 +1,14 @@
 import React from 'react';
+// Core React library import
+
 import { Link } from 'react-router-dom';
+// Link: Client-side routing without browser refresh
+
 import { FaBookOpen, FaClock } from 'react-icons/fa';
+// Icons for preparation header and video duration badge
 
 export default function StudyNotes() {
+  // Curated learning video notes and revision checklists across 6 subject tracks
   const notes = [
     // Subject: HTML
     {
@@ -115,6 +121,7 @@ export default function StudyNotes() {
 
   return (
     <main className="container">
+      {/* Header */}
       <div style={{ marginBottom: '2rem' }}>
         <div className="badge" style={{ marginBottom: '0.5rem', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
           <FaBookOpen /> Concept Prep &amp; Video Hub
@@ -123,13 +130,16 @@ export default function StudyNotes() {
         <p style={{ color: 'var(--text-muted)' }}>Review core lectures, checklists, and foundational notes before testing your skills.</p>
       </div>
 
-      {/* Video Grid */}
+      {/* Grid of video tutorial cards */}
       <div className="curriculum-grid">
         {notes.map(item => (
           <article key={item.id} className="video-card">
+            {/* Embedded YouTube video frame */}
             <div className="video-frame-wrap">
               <iframe src={item.embed} title={item.title} allowFullScreen loading="lazy" />
             </div>
+            
+            {/* Card Content */}
             <div className="video-content">
               <div className="video-meta">
                 <span>{item.meta}</span>
@@ -139,9 +149,13 @@ export default function StudyNotes() {
               </div>
               <h3>{item.title}</h3>
               <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>{item.desc}</p>
+              
+              {/* Revision checklist items */}
               <ul className="checklist">
                 {item.checklists.map((c, i) => <li key={i}>{c}</li>)}
               </ul>
+              
+              {/* Link to test knowledge for this topic */}
               <Link to={`/quiz?subject=${item.subject}`} className="video-cta">
                 Test {item.meta} Knowledge →
               </Link>

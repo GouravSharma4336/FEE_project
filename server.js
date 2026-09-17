@@ -1,7 +1,7 @@
 /**
- * QuizMaster - Lightweight Shared Multi-Device Server (fp4/server.js)
- * Zero external dependencies (uses Node.js built-in http, fs, path, url).
- * Keeps accounts in data/accounts.json and user-wise history in data/userHistory.json.
+ * QuizMaster - Backend HTTP Server (server.js)
+ * Lightweight server built with Node.js built-in modules (http, fs, path, url).
+ * Persists accounts in data/accounts.json and quiz history in data/userHistory.json.
  */
 
 import http from 'http';
@@ -9,19 +9,22 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+// Resolve current directory path in ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Port configuration (defaults to 5000) and data file paths
 const PORT = process.env.PORT || 5000;
 const DATA_DIR = path.join(__dirname, 'data');
 const ACCOUNTS_FILE = path.join(DATA_DIR, 'accounts.json');
 const HISTORY_FILE = path.join(DATA_DIR, 'userHistory.json');
 
-// Ensure data files exist
+// Ensure data folder and JSON files exist on disk
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 if (!fs.existsSync(ACCOUNTS_FILE)) fs.writeFileSync(ACCOUNTS_FILE, '[]', 'utf8');
 if (!fs.existsSync(HISTORY_FILE)) fs.writeFileSync(HISTORY_FILE, '{}', 'utf8');
 
+// Helper to read and parse JSON file safely
 function readJSON(file) {
   try {
     return JSON.parse(fs.readFileSync(file, 'utf8') || '[]');
@@ -30,18 +33,23 @@ function readJSON(file) {
   }
 }
 
+// Helper to write formatted JSON data back to file
 function writeJSON(file, data) {
   fs.writeFileSync(file, JSON.stringify(data, null, 2), 'utf8');
 }
 
+// Helper to enable CORS so the Vite frontend can communicate from other ports or LAN IP
 function setCors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 }
 
+// Create HTTP server handling API routes
 const server = http.createServer((req, res) => {
   setCors(res);
+
+  // Pre-flight OPTIONS request handling for CORS
   if (req.method === 'OPTIONS') {
     res.writeHead(204);
     res.end();
@@ -51,7 +59,7 @@ const server = http.createServer((req, res) => {
   const reqUrl = new URL(req.url, `http://${req.headers.host}`);
   const pathname = reqUrl.pathname;
 
-  // 1. GET /api/accounts
+  // 1. GET /api/accounts - Returns safe student accounts (without passwords)
   if (req.method === 'GET' && pathname === '/api/accounts') {
     const accounts = readJSON(ACCOUNTS_FILE);
     const safe = accounts.map(({ id, name, email }) => ({ id, name, email }));
@@ -60,7 +68,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // 2. POST /api/login
+  // 2. POST /api/login - Authenticates student or automatically registers new account
   if (req.method === 'POST' && pathname === '/api/login') {
     let body = '';
     req.on('data', chunk => { body += chunk; });
@@ -70,6 +78,7 @@ const server = http.createServer((req, res) => {
         const accounts = readJSON(ACCOUNTS_FILE);
         const identifier = (email || '').toLowerCase().trim();
 
+        // Search for existing account by email, ID, or name
         let account = accounts.find(a =>
           a.email.toLowerCase() === identifier ||
           a.id.toLowerCase() === identifier ||
@@ -77,7 +86,7 @@ const server = http.createServer((req, res) => {
         );
 
         if (!account) {
-          // Auto-register new student account
+          // Auto-register new student account if not found
           const newName = name || identifier.split('@')[0] || 'Student';
           const newId = newName.toLowerCase().replace(/\s+/g, '_');
           account = {
@@ -89,7 +98,7 @@ const server = http.createServer((req, res) => {
           accounts.push(account);
           writeJSON(ACCOUNTS_FILE, accounts);
 
-          // Initialize history
+          // Initialize empty history for this new student
           const history = readJSON(HISTORY_FILE);
           if (!history[account.id]) {
             history[account.id] = [];
@@ -110,7 +119,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // 3. POST /api/scores - Save quiz attempt to user-wise history
+  // 3. POST /api/scores - Saves a completed quiz attempt into student's history
   if (req.method === 'POST' && pathname === '/api/scores') {
     let body = '';
     req.on('data', chunk => { body += chunk; });
@@ -121,6 +130,7 @@ const server = http.createServer((req, res) => {
         const history = readJSON(HISTORY_FILE);
         if (!history[userId]) history[userId] = [];
 
+        // Build new attempt record
         const newRecord = {
           id: Date.now(),
           date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
@@ -131,6 +141,7 @@ const server = http.createServer((req, res) => {
           percentage: attempt.percentage || 0
         };
 
+        // Add to front of history list and save to file
         history[userId].unshift(newRecord);
         writeJSON(HISTORY_FILE, history);
 
@@ -144,7 +155,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // 4. GET /api/history - User-specific quiz attempts
+  // 4. GET /api/history - Returns quiz attempt logs for a specific user
   if (req.method === 'GET' && pathname === '/api/history') {
     const userId = reqUrl.searchParams.get('userId') || '';
     const history = readJSON(HISTORY_FILE);
@@ -154,15 +165,16 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // 5. GET /api/leaderboard - Top 10 scores across ALL student accounts
+  // 5. GET /api/leaderboard - Aggregates Top 5 highest-scoring attempts across all students
   if (req.method === 'GET' && pathname === '/api/leaderboard') {
     const accounts = readJSON(ACCOUNTS_FILE);
     const history = readJSON(HISTORY_FILE);
 
+    // Map user IDs to student names
     const accountMap = {};
     accounts.forEach(a => { accountMap[a.id] = a.name; });
 
-    // Flatten all attempts across all accounts
+    // Collect all attempts into a single flat array
     const allAttempts = [];
     Object.entries(history).forEach(([uId, attempts]) => {
       const studentName = accountMap[uId] || uId;
@@ -180,26 +192,26 @@ const server = http.createServer((req, res) => {
       });
     });
 
-    // Sort descending by percentage, then by score
+    // Sort descending by percentage accuracy, then by raw score
     allAttempts.sort((a, b) => (b.percentage - a.percentage) || (b.score - a.score));
 
-    // Pick Top 10
-    const top10 = allAttempts.slice(0, 10).map((att, idx) => ({
+    // Extract top 5 ranked attempts
+    const top5 = allAttempts.slice(0, 5).map((att, idx) => ({
       rank: idx + 1,
       ...att
     }));
 
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify(top10));
+    res.end(JSON.stringify(top5));
     return;
   }
 
-  // 6. Serve built static files from fp4/dist (if available)
+  // 6. Serve production static files from dist/ (if built)
   const distDir = path.join(__dirname, 'dist');
   if (fs.existsSync(distDir)) {
     let filePath = path.join(distDir, pathname === '/' ? 'index.html' : pathname);
     if (!fs.existsSync(filePath)) {
-      filePath = path.join(distDir, 'index.html'); // SPA fallback
+      filePath = path.join(distDir, 'index.html'); // SPA fallback for direct route loads
     }
     const ext = path.extname(filePath);
     const mimeTypes = {
@@ -224,10 +236,12 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // Fallback 404 for unknown endpoints
   res.writeHead(404, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify({ error: 'Endpoint not found' }));
 });
 
+// Start listening on specified port
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`\n======================================================`);
   console.log(`🚀 QuizMaster Multi-User Server is LIVE on port ${PORT}!`);

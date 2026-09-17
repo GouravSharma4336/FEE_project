@@ -1,17 +1,29 @@
 import React, { useState, useEffect } from 'react';
+// Core React hooks: useState for state management, useEffect for loading history on mount
+
 import { Link } from 'react-router-dom';
+// Link: Client-side routing without browser refresh
+
 import { FaHistory, FaTrashAlt, FaFileAlt } from 'react-icons/fa';
+// Icons for history title, delete history button, and empty state placeholder
+
 import { fetchUserHistory } from '../api';
+// API service function to retrieve saved quiz attempts
 
 export default function History() {
+  // logs: Stores the list of previous quiz attempts
   const [logs, setLogs] = useState([]);
+  
+  // user: Reads current user details from browser localStorage
   const [user] = useState(() => JSON.parse(localStorage.getItem('quizmaster_user') || 'null'));
 
+  // Fetch test history for the current user when the page loads
   useEffect(() => {
     const userId = user?.id || (user?.name ? user.name.toLowerCase().replace(/\s+/g, '_') : 'aarav');
     fetchUserHistory(userId).then(saved => setLogs(saved));
   }, [user]);
 
+  // Clears user assessment history from localStorage and resets UI
   const clearHistory = () => {
     if (window.confirm('Clear your local assessment history?')) {
       localStorage.removeItem('quizmaster_history');
@@ -19,14 +31,16 @@ export default function History() {
     }
   };
 
-  const totalAttempts = logs.length;
+  // Performance calculations
+  const totalAttempts = logs.length; // Total completed tests
   const avgAccuracy = totalAttempts
     ? Math.round(logs.reduce((acc, l) => acc + (l.percentage || 0), 0) / totalAttempts)
-    : 0;
-  const bestScore = logs.reduce((best, l) => (l.percentage > (best.percentage || 0) ? l : best), { percentage: 0, score: 0, total: 0 });
+    : 0; // Average percentage accuracy across all tests
+  const bestScore = logs.reduce((best, l) => (l.percentage > (best.percentage || 0) ? l : best), { percentage: 0, score: 0, total: 0 }); // Highest percentage attempt
 
   return (
     <main className="container">
+      {/* Page Header */}
       <div style={{ marginBottom: '2rem' }}>
         <div className="badge" style={{ marginBottom: '0.5rem', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
           <FaHistory /> Personal Performance Logs
@@ -41,14 +55,14 @@ export default function History() {
 
       {logs.length > 0 ? (
         <>
-          {/* Stats Bar */}
+          {/* Summary statistics strip: Total tests, average accuracy, and best score */}
           <div className="stats-strip" style={{ gridTemplateColumns: 'repeat(3, 1fr)', marginBottom: '2rem' }}>
             <div><span className="stat-num">{totalAttempts}</span><span className="stat-label">Tests Completed</span></div>
             <div><span className="stat-num">{avgAccuracy}%</span><span className="stat-label">Average Accuracy</span></div>
             <div><span className="stat-num">{bestScore.score} / {bestScore.total}</span><span className="stat-label">Best Score</span></div>
           </div>
 
-          {/* Controls */}
+          {/* Action bar with clear history button and start new quiz button */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
             <span style={{ fontWeight: 700, color: 'var(--text-secondary)' }}>
               Logged assessment drills for {user?.name || 'Student'}:
@@ -61,7 +75,7 @@ export default function History() {
             </div>
           </div>
 
-          {/* Table */}
+          {/* Records Table */}
           <div className="table-container">
             <table className="data-table">
               <thead>
@@ -77,6 +91,7 @@ export default function History() {
               </thead>
               <tbody>
                 {logs.map((log, i) => {
+                  // Color-coded pill class based on accuracy percentage
                   const pillClass = log.percentage >= 75 ? 'pct-high' : log.percentage >= 50 ? 'pct-mid' : 'pct-low';
                   return (
                     <tr key={i}>
@@ -95,6 +110,7 @@ export default function History() {
           </div>
         </>
       ) : (
+        /* Empty state: Displayed when no quiz records exist */
         <div className="card empty-state">
           <div className="empty-icon">
             <FaFileAlt style={{ fontSize: '3rem', color: 'var(--text-muted)' }} />

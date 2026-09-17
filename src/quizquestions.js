@@ -1,8 +1,9 @@
 /**
- * QuizMaster - Curated Manual Questions Bank
- * Provides a rich repository of technical and aptitude questions
- * to complement or fallback from live API rate limits.
+ * QuizMaster - Curated Technical Question Bank (src/quizquestions.js)
+ * High-quality offline questions for HTML, CSS, JavaScript, React, OOPs, and Quantitative Aptitude.
+ * Acts as a fallback if the external API is offline or rate-limited.
  */
+
 
 export const manualQuestionBank = [
   // --- HTML5 & Semantic Web ---
@@ -514,29 +515,21 @@ export const manualQuestionBank = [
   }
 ];
 
-/**
- * Retrieves curated questions filtered by subject and difficulty.
- * If the filtered pool is smaller than requested count, falls back gracefully
- * to other questions from the bank so the quiz volume is always fulfilled.
- *
- * @param {Object} options
- * @param {string} [options.subject='mixed']
- * @param {string} [options.difficulty='mixed']
- * @param {number} [options.count=10]
- * @returns {Array} Array of question objects
- */
+// --- GET MANUAL QUESTIONS HELPER ---
+// Retrieves questions filtered by subject and difficulty.
+// If the filtered pool is smaller than requested, gracefully falls back to ensure quiz count is fulfilled.
 export function getManualQuestions({ subject = 'mixed', difficulty = 'mixed', count = 10 } = {}) {
   const normSubject = (subject || 'mixed').toLowerCase();
   const normDiff = (difficulty || 'mixed').toUpperCase();
 
-  // 1. Primary Filter: exact subject & difficulty match
+  // 1. Primary Filter: Matches exact subject and difficulty level
   let primaryPool = manualQuestionBank.filter(q => {
     const matchSub = normSubject === 'mixed' || q.subject === normSubject;
     const matchDiff = normDiff === 'MIXED' || q.difficulty === normDiff;
     return matchSub && matchDiff;
   });
 
-  // 2. Secondary Fallback: match subject across any difficulty if needed
+  // 2. Secondary Fallback: If not enough questions, include other difficulties from the same subject
   if (primaryPool.length < count && normSubject !== 'mixed') {
     const subjectPool = manualQuestionBank.filter(q => q.subject === normSubject);
     const existingQuestions = new Set(primaryPool.map(q => q.question));
@@ -548,7 +541,7 @@ export function getManualQuestions({ subject = 'mixed', difficulty = 'mixed', co
     }
   }
 
-  // 3. Tertiary Fallback: supplement from the broader bank to ensure count is met
+  // 3. Tertiary Fallback: If still under target count, borrow from the broader question bank
   if (primaryPool.length < count) {
     const existingQuestions = new Set(primaryPool.map(q => q.question));
     for (const q of manualQuestionBank) {
@@ -560,23 +553,25 @@ export function getManualQuestions({ subject = 'mixed', difficulty = 'mixed', co
     }
   }
 
-  // Shuffle pool with Fisher-Yates
+  // 4. Randomize question order using Fisher-Yates shuffle
   const shuffled = [...primaryPool];
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
 
-  // If count exceeds total unique questions, cycle through them
+  // 5. If requested count exceeds unique questions, cycle through them to fulfill count
   const result = [];
   while (result.length < count && shuffled.length > 0) {
     const remaining = count - result.length;
     result.push(...shuffled.slice(0, remaining));
   }
 
+  // 6. Return cloned question objects with default explanation fallback
   return result.map(q => ({
     ...q,
     options: [...q.options],
     explanation: q.explanation || `Correct answer: ${q.options[q.answer]}`
   }));
 }
+

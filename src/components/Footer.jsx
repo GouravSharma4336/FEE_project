@@ -1,14 +1,23 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { FaBullseye } from 'react-icons/fa';
+// Core React library import
 
+import { Link } from 'react-router-dom';
+// Link: Client-side routing links without reloading the page
+
+import { FaBullseye } from 'react-icons/fa';
+// FontAwesome bullseye logo icon
+
+// Footer Component: Renders the site-wide footer with branding, quick links, and copyright
 export default function Footer() {
   return (
     <footer>
       <div className="footer-inner">
+        {/* Brand logo & name */}
         <div className="logo" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
           <FaBullseye style={{ color: 'var(--primary)' }} /> QuizMaster
         </div>
+
+        {/* Quick navigation links */}
         <div className="footer-links">
           <Link to="/">Home</Link>
           <Link to="/prepare">Study Notes</Link>
@@ -18,6 +27,8 @@ export default function Footer() {
           <Link to="/login">Login</Link>
         </div>
       </div>
+
+      {/* Dynamic copyright year and project tag */}
       <div style={{ marginTop: '1rem' }}>
         &copy; {new Date().getFullYear()} QuizMaster. Frontend Engineering (FEE) React SPA.
       </div>

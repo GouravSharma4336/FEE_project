@@ -1,46 +1,64 @@
 import React, { useState } from 'react';
+// Core React imports: useState for managing form inputs and active tabs
+
 import { Link, useNavigate } from 'react-router-dom';
+// Link for internal navigation, useNavigate for programmatic redirects after login
+
 import { FaUserCheck } from 'react-icons/fa';
+// Icon for the guest sign-in button
+
 import { useToast } from '../components/Toast';
+// Custom hook to trigger toast alert popups
+
 import { loginUser } from '../api';
+// API function to authenticate or register user
 
 export default function Login() {
-  const navigate = useNavigate();
-  const { addToast } = useToast();
+  const navigate = useNavigate(); // Page redirect helper
+  const { addToast } = useToast(); // Toast notification trigger
 
+  // Reads current logged-in user profile from localStorage
   const [user, setUser] = useState(() => JSON.parse(localStorage.getItem('quizmaster_user') || 'null'));
+  
+  // activeTab: Tracks whether the 'Sign In' or 'Create Account' tab is selected
   const [activeTab, setActiveTab] = useState('login');
 
+  // Controlled form state for Sign In
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPass, setLoginPass] = useState('');
 
+  // Controlled form state for Create Account
   const [signupName, setSignupName] = useState('');
   const [signupEmail, setSignupEmail] = useState('');
   const [signupPass, setSignupPass] = useState('');
 
+  // Logs in instantly as a guest without entering a password
   const handleGuestLogin = async () => {
     const guest = await loginUser('guest@campus.edu', 'guest', 'Guest Learner');
     setUser(guest);
     addToast('Signed in as Guest Learner!', 'info');
-    setTimeout(() => navigate('/'), 500);
+    setTimeout(() => navigate('/'), 500); // Redirect to home page
   };
 
+  // Handles standard student account sign-in
   const handleLogin = async (e) => {
     e.preventDefault();
     const loggedIn = await loginUser(loginEmail, loginPass);
     setUser(loggedIn);
     addToast(`Welcome back, ${loggedIn.name}!`, 'success');
-    setTimeout(() => navigate('/'), 500);
+    setTimeout(() => navigate('/'), 500); // Redirect to home page
   };
 
+  // Handles new student registration
   const handleSignup = async (e) => {
     e.preventDefault();
     const registered = await loginUser(signupEmail, signupPass, signupName);
     setUser(registered);
     addToast(`Account created! Welcome, ${registered.name}!`, 'success');
-    setTimeout(() => navigate('/'), 500);
+    setTimeout(() => navigate('/'), 500); // Redirect to home page
   };
 
+  // Logs out user by clearing storage and resetting state
   const handleLogout = () => {
     localStorage.removeItem('quizmaster_user');
     setUser(null);
@@ -51,7 +69,7 @@ export default function Login() {
     <main className="auth-wrapper" style={{ maxWidth: '480px' }}>
       <div className="card" style={{ padding: '2rem' }}>
         {user && user.name ? (
-          /* Logged In Dashboard State */
+          /* Logged In Dashboard State: Shown if user is already signed in */
           <div style={{ textAlign: 'center' }}>
             <div className="player-avatar" style={{ width: '54px', height: '54px', fontSize: '1.5rem', margin: '0 auto 1rem' }}>
               {user.name.charAt(0).toUpperCase()}
@@ -67,7 +85,7 @@ export default function Login() {
             </div>
           </div>
         ) : (
-          /* Auth Forms */
+          /* Authentication Forms: Shown if user is not signed in */
           <div>
             <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
               <h2 style={{ fontSize: '1.5rem' }}>Campus Student Access</h2>
@@ -76,7 +94,7 @@ export default function Login() {
               </p>
             </div>
 
-            {/* 1 Guest Login */}
+            {/* Instant One-Click Guest Login */}
             <div style={{ marginBottom: '1.5rem' }}>
               <button
                 type="button"
@@ -93,6 +111,7 @@ export default function Login() {
               </div>
             </div>
 
+            {/* Tabs for switching between Sign In and Create Account */}
             <div className="auth-tabs">
               <button
                 type="button"
@@ -110,6 +129,7 @@ export default function Login() {
               </button>
             </div>
 
+            {/* Sign In Form */}
             {activeTab === 'login' ? (
               <form onSubmit={handleLogin}>
                 <div className="form-group">
@@ -144,12 +164,14 @@ export default function Login() {
                 </div>
                 <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>Sign In to Dashboard →</button>
 
+                {/* Pre-seeded demo student accounts list */}
                 <div style={{ marginTop: '1rem', padding: '0.6rem 0.8rem', background: 'var(--bg)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', fontSize: '0.78rem', color: 'var(--text-muted)', textAlign: 'center' }}>
                   <strong>Sample Initial Accounts (Pass: 123):</strong><br />
                   aarav@campus.edu &bull; diya@campus.edu &bull; rohan@campus.edu &bull; ananya@campus.edu
                 </div>
               </form>
             ) : (
+              /* Create Account Form */
               <form onSubmit={handleSignup}>
                 <div className="form-group">
                   <label htmlFor="signupName">Full Name</label>
